@@ -1,3 +1,4 @@
+from desktop_app.datos import cargar_acciones
 
 import sys
 
@@ -55,13 +56,27 @@ class DayTrader(QMainWindow):
         layout.addWidget(aviso)
 
     def analizar(self):
-        QMessageBox.information(
-            self,
-            "Day Trader",
-            "La conexión con el analizador "
-            "se añadirá en el siguiente paso."
-        )
+        try:
+            acciones = cargar_acciones()
+            self.tabla.setRowCount(len(acciones))
 
+            for fila, accion in enumerate(acciones):
+                for columna, clave in enumerate(
+                    ("activo", "mercado", "senal", "riesgo")
+                ):
+                    self.tabla.setItem(
+                        fila,
+                        columna,
+                        QTableWidgetItem(str(accion.get(clave, "")))
+                    )
+
+            QMessageBox.information(
+                self,
+                "Day Trader",
+                f"Se han cargado {len(acciones)} acciones del último análisis."
+            )
+        except Exception as error:
+            QMessageBox.warning(self, "Error", str(error))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
